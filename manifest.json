@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "Format Selected JSON",
+  "version": "1.0.0",
+  "description": "Right-click selected text to view it as formatted, syntax-highlighted JSON.",
+  "permissions": ["contextMenus", "storage"],
+  "background": { "service_worker": "background.js" }
+}
