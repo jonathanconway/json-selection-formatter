@@ -11,10 +11,10 @@ Simply right click some JSON in the browser window and click **Format selected J
 <table>
 <tr>
 <td>
-![](./docs/screenshot-chrome-right-click-menu-item.png)
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/screenshot-chrome-right-click-menu-item.png" alt="Screenshot of right click menu in Chrome with Format selected JSON menu item" />
 </td>
 <td>
-![](./docs/screenshot-chrome-json-formatted-output.png)
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/screenshot-chrome-json-formatted-output.png" alt="Screenshot of Chrome window with JSON formatted output" />
 </td>
 </tr>
 </table>
