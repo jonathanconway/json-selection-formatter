@@ -1,56 +1,150 @@
-const output = document.getElementById('output');
-const status = document.getElementById('status');
+const outputElement = document.getElementById('output');
+const statusElement = document.getElementById('status');
+const copyButton = document.getElementById('copy');
 
-// Parse JSON, unwrapping any layers of string-encoded or backslash-escaped JSON.
-function parse(text) {
-  const s = text.trim();
-  const unwrap = (v) => {
-    while (typeof v === 'string') v = JSON.parse(v);
-    return v;
-  };
-  try {
-    return unwrap(JSON.parse(s));
-  } catch (e) {
-    try {
-      return unwrap(JSON.parse('"' + s.replace(/^"|"$/g, '') + '"'));
-    } catch {
-      throw e;
-    }
-  }
-}
+const JSON_INDENT_SPACES = 2;
+const COPIED_STATUS_DURATION_MS = 1500;
 
-const escapeHtml = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-
-function highlight(json) {
-  return escapeHtml(json).replace(
-    /("(?:\\.|[^"\\])*")(\s*:)?|(true|false|null)|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g,
-    (m, str, colon, kw) => {
-      const cls = str ? (colon ? 'key' : 'str') : kw ? 'kw' : 'num';
-      return `<span class="${cls}">${m}</span>`;
-    }
-  );
-}
+// Matches the JSON tokens we colour. Strings are matched first, so keywords and
+// numbers that appear inside a string are never coloured separately.
+const JSON_TOKEN_PATTERN = new RegExp(
+  [
+    String.raw`("(?:\\.|[^"\\])*")(\s*:)?`, // string, plus a trailing colon if it is a key
+    String.raw`(true|false|null)`, // keyword
+    String.raw`-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?`, // number
+  ].join('|'),
+  'g'
+);
 
 async function main() {
-  const id = location.hash.slice(1);
-  const text = (await chrome.storage.session.get(id))[id];
-  if (text == null) {
-    output.innerHTML = '<span class="err">Selection not found (it is cleared when the browser restarts).</span>';
+  const selectedText = await loadSelectedText();
+  if (selectedText === undefined) {
+    showError({ message: 'Selection not found (it is cleared when the browser restarts).' });
     return;
   }
-  let formatted;
+
+  const { formattedJson, error } = formatJson(selectedText);
+  if (error) {
+    showError({ message: `Not valid JSON: ${error.message}`, originalText: selectedText });
+    return;
+  }
+
+  showFormattedJson(formattedJson);
+  enableCopyButton(formattedJson);
+}
+
+// ---------------------------------------------------------------------------
+// Loading
+// ---------------------------------------------------------------------------
+
+// The background script stores the selection under an id passed in the URL hash.
+async function loadSelectedText() {
+  const selectionId = location.hash.slice(1);
+  const storedItems = await chrome.storage.session.get(selectionId);
+  return storedItems[selectionId];
+}
+
+// ---------------------------------------------------------------------------
+// Parsing and formatting
+// ---------------------------------------------------------------------------
+
+function formatJson(text) {
   try {
-    formatted = JSON.stringify(parse(text), null, 2);
-  } catch (e) {
-    output.innerHTML = `<span class="err">Not valid JSON: ${escapeHtml(e.message)}</span>\n\n${escapeHtml(text)}`;
-    return;
+    const parsedValue = parseJson(text);
+    return { formattedJson: JSON.stringify(parsedValue, null, JSON_INDENT_SPACES) };
+  } catch (error) {
+    return { error };
   }
-  output.innerHTML = highlight(formatted);
-  document.getElementById('copy').onclick = async () => {
-    await navigator.clipboard.writeText(formatted);
-    status.textContent = 'Copied';
-    setTimeout(() => (status.textContent = ''), 1500);
+}
+
+// Parses JSON text, also accepting JSON that has been string-encoded
+// (e.g. `"{\"a\":1}"`) or backslash-escaped without quotes (e.g. `{\"a\":1}`).
+function parseJson(text) {
+  const trimmedText = text.trim();
+
+  try {
+    return parseNestedJson(trimmedText);
+  } catch (originalError) {
+    try {
+      return parseNestedJson(unescapeJsonString(trimmedText));
+    } catch {
+      // Report the first error, as it describes the text the user actually selected.
+      throw originalError;
+    }
+  }
+}
+
+// Keeps parsing while the result is a string, to unwrap JSON encoded inside JSON strings.
+function parseNestedJson(text) {
+  let value = JSON.parse(text);
+  while (typeof value === 'string') {
+    value = JSON.parse(value);
+  }
+  return value;
+}
+
+// Turns `{\"a\":1}` into `{"a":1}` by parsing it as the contents of a JSON string.
+function unescapeJsonString(text) {
+  const textWithoutOuterQuotes = text.replace(/^"|"$/g, '');
+  return JSON.parse(`"${textWithoutOuterQuotes}"`);
+}
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+
+function showFormattedJson(formattedJson) {
+  outputElement.innerHTML = highlightJson(formattedJson);
+}
+
+function showError({ message, originalText = '' }) {
+  const errorHtml = `<span class="err">${escapeHtml(message)}</span>`;
+  const originalTextHtml = originalText ? `\n\n${escapeHtml(originalText)}` : '';
+  outputElement.innerHTML = errorHtml + originalTextHtml;
+}
+
+// Wraps each token in a <span> whose class sets its colour (see viewer.css).
+function highlightJson(formattedJson) {
+  const safeJson = escapeHtml(formattedJson);
+
+  return safeJson.replace(JSON_TOKEN_PATTERN, (token, stringLiteral, keyColon, keyword) => {
+    const tokenClass = getTokenClass({ stringLiteral, keyColon, keyword });
+    return `<span class="${tokenClass}">${token}</span>`;
+  });
+}
+
+function getTokenClass({ stringLiteral, keyColon, keyword }) {
+  if (stringLiteral) {
+    const isObjectKey = keyColon !== undefined;
+    return isObjectKey ? 'key' : 'str';
+  }
+  if (keyword) {
+    return 'kw';
+  }
+  return 'num';
+}
+
+// Only `&` and `<` need escaping, as the text is only ever placed inside an element.
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+}
+
+// ---------------------------------------------------------------------------
+// Copying
+// ---------------------------------------------------------------------------
+
+function enableCopyButton(formattedJson) {
+  copyButton.onclick = async () => {
+    await navigator.clipboard.writeText(formattedJson);
+    showTemporaryStatus('Copied');
   };
+}
+
+function showTemporaryStatus(message) {
+  statusElement.textContent = message;
+  setTimeout(() => {
+    statusElement.textContent = '';
+  }, COPIED_STATUS_DURATION_MS);
 }
 
 main();
