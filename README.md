@@ -1,6 +1,8 @@
 # json-selection-formatter
 
-Unescape and format selected JSON - Chrome bookmarklet.
+Right-click selected text to view it as formatted, syntax-highlighted JSON.
+
+Unescape and format selected JSON.
 
 ## Installation
 
@@ -10,7 +12,9 @@ Unescape and format selected JSON - Chrome bookmarklet.
 
 ## Usage
 
-Select any JSON in the browser window, right click, then click **Format selected JSON**.
+Simply select a piece of JSON in the browser window, right click, then click **Format selected JSON**.
+
+The formatted JSON will open in a new browser tab, in a more readable format, with a convenient Copy button.
 
 <table>
 <tr>
