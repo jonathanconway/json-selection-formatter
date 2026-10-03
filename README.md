@@ -2,11 +2,17 @@
 
 Chrome extension that unescapes, formats and syntax-highlights any piece of JSON selected in a web page.
 
-## Installation
+## Installation (General usage)
 
-1. Go to chrome://extensions.
-2. Turn on Developer mode (top right).
-3. Click Load unpacked and choose the ~/json-selection-formatter folder.
+1. Go to [Format Selected JSON](https://chromewebstore.google.com/detail/format-selected-json/fnkpkdgghhniojemjaefijfdfenabmbe) in the [Chrome Web Store](https://chromewebstore.google.com/).
+2. Click Add to Chrome
+
+## Installation (Local, for development)
+
+1. Clone the solution to a local `json-selection-formatter` repo folder.
+2. Go to chrome://extensions.
+3. Turn on Developer mode (top right).
+4. Click Load unpacked and choose the `json-selection-formatter` repo folder.
 
 ## Usage
 
