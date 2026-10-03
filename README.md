@@ -1,8 +1,6 @@
 # json-selection-formatter
 
-Right-click selected text to view it as formatted, syntax-highlighted JSON.
-
-Unescape and format selected JSON.
+Chrome extension that unescapes, formats and syntax-highlights any piece of JSON selected in a web page.
 
 ## Installation
 
