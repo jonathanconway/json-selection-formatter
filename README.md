@@ -22,8 +22,6 @@ Simply select a piece of JSON in the browser window, right click, then click **F
 
 The formatted JSON will open in a new browser tab, in a more readable format, with a convenient Copy button.
 
-<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/json-selection-formatter-store-screen-recording-1.gif" alt="Screen recording of right click menu with Format selected JSON menu item and JSON formatted output in Chrome Browser" />
-
 <table>
 <tr>
 <td>
@@ -34,6 +32,8 @@ The formatted JSON will open in a new browser tab, in a more readable format, wi
 </td>
 </tr>
 </table>
+
+![Screen recording of right click menu with Format selected JSON menu item and JSON formatted output in Chrome Browser](docs/json-selection-formatter-store-screen-recording-1.gif)
 
 ## Credits
 
