@@ -1,3 +1,5 @@
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/json-selection-formatter.png" alt="" />
+
 # json-selection-formatter
 
 Chrome extension that unescapes, formats and syntax-highlights any piece of JSON selected in a web page.
@@ -20,13 +22,15 @@ Simply select a piece of JSON in the browser window, right click, then click **F
 
 The formatted JSON will open in a new browser tab, in a more readable format, with a convenient Copy button.
 
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/json-selection-formatter-store-screen-recording-1.gif" alt="Screen recording of right click menu with Format selected JSON menu item and JSON formatted output in Chrome Browser" />
+
 <table>
 <tr>
 <td>
-<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/screenshot-chrome-right-click-menu-item.png" alt="Screenshot of right click menu in Chrome with Format selected JSON menu item" />
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/json-selection-formatter-store-screenshot-1.png" alt="Screenshot of right click menu with Format selected JSON menu item in Chrome Browser" />
 </td>
 <td>
-<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/screenshot-chrome-json-formatted-output.png" alt="Screenshot of Chrome window with JSON formatted output" />
+<img src="https://github.com/jonathanconway/json-selection-formatter/blob/main/docs/json-selection-formatter-store-screenshot-2.png" alt="Screenshot of JSON formatted output in Chrome Browser" />
 </td>
 </tr>
 </table>
